@@ -1,5 +1,4 @@
 # tptGLPI
-
 Módulo PowerShell que envuelve la API REST oficial de GLPI (ITSM) para gestionar recursos de infraestructura: activos, tickets, categorías y estado de conexión.
 
 Parte de la suite *tarre pwsh tools* (TPT): prefijo `tpt` en módulos y funciones para evitar colisiones.
@@ -7,12 +6,10 @@ Parte de la suite *tarre pwsh tools* (TPT): prefijo `tpt` en módulos y funcione
 El objetivo es no llamar a la API REST de GLPI directamente: `tptGLPI` aporta una capa de conveniencia con nombres estables, estado de conexión compartido en el módulo y errores limpios.
 
 ## Requisitos
-
 - PowerShell 7.2 o superior (también compatible con Windows PowerShell 5.1).
 - GLPI 10+ con la API REST habilitada y un servidor GLPI accesible desde el cliente.
 
 ## Instalación
-
 ```powershell
 # Desde PowerShell Gallery (cuando se publique)
 Install-Module tptGLPI
@@ -24,7 +21,6 @@ Import-Module ./tptGLPI/tptGLPI.psd1
 ```
 
 ## Uso básico
-
 ```powershell
 Import-Module tptGLPI
 
@@ -49,30 +45,29 @@ Get-tptGLPIAssets
 
 ## Configuración
 
-El módulo usa un estado de conexión compartido almacenado en memoria durante la sesión.
-Para el uso futuro, se leerá un fichero YAML con las plataformas declaradas:
+El módulo utiliza un fichero centralizado de configuración YAML para todas las plataformas TPT: `~/.tpt/tpt_config.yaml`.
 
-Ubicación: `~/.tpt/tptGLPI.yaml` en Linux/macOS y `~\.tpt\tptGLPI.yaml` en Windows.
-
+**Sección para tptGLPI:**
 ```yaml
-# ~/.tpt/tptGLPI.yaml
-# Plataformas declaradas para tptGLPI.
 platforms:
-  - name: production
-    url: 'https://glpi.local'
-    default: true
-    tags: [producción]
-
-  - name: lab
-    url: 'https://glpi.lab.local'
-    default: false
-    tags: [laboratorio]
+  tptGLPI:
+    - name: glpi-prod
+      url: https://glpi.corp.local
+      default: true
+      tags: [producción]
+    - name: glpi-lab
+      url: https://glpi.lab.local
+      default: false
+      tags: [laboratorio]
 ```
 
-Aviso de seguridad: no guardar credenciales en este fichero; las credenciales se piden en tiempo de conexión con `Get-Credential` (o el gestor de credenciales del sistema operativo).
+- **`url`**: URL base del servidor GLPI.
+- **`default`**: Marca la plataforma predeterminada (solo una debe ser `true`).
+- **`tags`**: Lista libre para clasificación.
+
+**Nota:** Las credenciales NO deben incluirse en este fichero. Usar `Get-Credential` al conectarse.
 
 ## Estructura
-
 ```
 tptGLPI/
 ├── tptGLPI.psd1            # Manifiesto: metadatos, exports, dependencias
@@ -95,18 +90,16 @@ tptGLPI/
 ```
 
 ## Funciones públicas actuales
-
-| Función | Descripción |
-|---------|-------------|
-| `Connect-tptGLPI` | Establece una conexión con GLPI y obtiene un token de autenticación. |
-| `Get-tptGLPIHosts` | Obtiene un inventario de equipos informáticos (computadoras) desde GLPI. |
-| `Get-tptGLPITickets` | Obtiene un inventario de tickets (incidencias) desde GLPI. |
-| `Get-tptGLPICategories` | Obtiene un inventario de categorías de tickets desde GLPI. |
-| `Get-tptGLPIAssets` | Obtiene un inventario de activos (impresoras, dispositivos de red) desde GLPI. |
-| `Get-tptGLPIStatus` | Muestra el estado actual de la conexión con GLPI. |
+|| Función | Descripción |
+||---------|-------------|
+|| `Connect-tptGLPI` | Establece una conexión con GLPI y obtiene un token de autenticación. |
+|| `Get-tptGLPIHosts` | Obtiene un inventario de equipos informáticos (computadoras) desde GLPI. |
+|| `Get-tptGLPITickets` | Obtiene un inventario de tickets (incidencias) desde GLPI. |
+|| `Get-tptGLPICategories` | Obtiene un inventario de categorías de tickets desde GLPI. |
+|| `Get-tptGLPIAssets` | Obtiene un inventario de activos (impresoras, dispositivos de red) desde GLPI. |
+|| `Get-tptGLPIStatus` | Muestra el estado actual de la conexión con GLPI.
 
 ## Desarrollo
-
 ```powershell
 # Lint
 Install-Module PSScriptAnalyzer
@@ -119,5 +112,4 @@ pwsh -NoProfile -Command 'Import-Module ./tptGLPI.psd1; Get-Command -Module tptG
 Las funciones públicas van una por fichero en `Functions/Public/` y las privadas en `Functions/Private/`. El manifiesto lista explícitamente `FunctionsToExport`; nada se exporta con comodines.
 
 ## Licencia
-
 [GPL-3.0](LICENSE).
